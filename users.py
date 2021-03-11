@@ -1,9 +1,11 @@
-# Science Fiction Novel API - Bottle Edition
-#
-# Adapted from "Creating Web APIs with Python and Flask"
-# <https://programminghistorian.org/en/lessons/creating-apis-with-python-and-flask>.
+# Users API
+# CPSC 449: Project 2
+# Creators: Stephen Lee
+# Date: 3/12/21
 #
 
+# imports
+#
 import sys
 import textwrap
 import logging.config
@@ -25,8 +27,6 @@ logging.config.fileConfig(app.config['logging.config'])
 
 
 # Return errors in JSON
-#
-# Adapted from # <https://stackoverflow.com/a/39818780>
 #
 def json_error_handler(res):
     if res.content_type == 'application/json':
@@ -52,11 +52,7 @@ if not sys.warnoptions:
     for warning in [DeprecationWarning, ResourceWarning]:
         warnings.simplefilter('ignore', warning)
 
-
 # Simplify DB access
-#
-# Adapted from
-# <https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3/#easy-querying>
 #
 def query(db, sql, args=(), one=False):
     cur = db.execute(sql, args)
@@ -77,30 +73,34 @@ def execute(db, sql, args=()):
 
 
 # Routes
-
+#
+# Home Page
+#
 @get('/')
 def home():
     return textwrap.dedent('''
-        <h1>Distant Reading Archive</h1>
-        <p>A prototype API for distant reading of science fiction novels.</p>\n
+        <h1>Project 2: Users API</h1>
     ''')
 
+# Get all users
+#
+@get('/users/')
+def users(db):
+    all_users = query(db, 'SELECT * FROM users;')
 
-@get('/books/')
-def books(db):
-    all_books = query(db, 'SELECT * FROM books;')
+    return {'users': all_users}
 
-    return {'books': all_books}
-
-
-@get('/books')
+# Search for a specific user
+# Can only search by username or email
+#
+@get('/users')
 def search(db):
-    sql = 'SELECT * FROM books'
+    sql = 'SELECT * FROM users'
 
     columns = []
     values = []
 
-    for column in ['author', 'published', 'title']:
+    for column in ['username', 'email']:
         if column in request.query:
             columns.append(column)
             values.append(request.query[column])
@@ -110,41 +110,70 @@ def search(db):
         sql += ' AND '.join([f'{column} = ?' for column in columns])
 
     logging.debug(sql)
-    books = query(db, sql, values)
+    users = query(db, sql, values)
 
-    return {'books': books}
+    return {'users': users}
 
+# Create a new user
+#
+@post('/users/')
+def create_user(db):
+    user = request.json
 
-@post('/books/')
-def create_book(db):
-    book = request.json
-
-    if not book:
+    if not user:
         abort(400)
 
-    posted_fields = book.keys()
-    required_fields = {'published', 'author', 'title', 'first_sentence'}
+    posted_fields = user.keys()
+    required_fields = {'username', 'email', 'password'}
 
     if not required_fields <= posted_fields:
         abort(400, f'Missing fields: {required_fields - posted_fields}')
 
     try:
-        book['id'] = execute(db, '''
-            INSERT INTO books(published, author, title, first_sentence)
-            VALUES(:published, :author, :title, :first_sentence)
-            ''', book)
+        user['username'] = execute(db, '''
+            INSERT INTO users(username, email, password)
+            VALUES(:username, :email, :password)
+            ''', user)
     except sqlite3.IntegrityError as e:
         abort(409, str(e))
 
     response.status = 201
-    response.set_header('Location', f"/books/{book['id']}")
-    return book
+    response.set_header('Location', f"/users/{user['username']}")
+    return user
 
-
-@get('/books/<id:int>')
-def retrieve_book(id, db):
-    book = query(db, 'SELECT * FROM books WHERE id = ?', [id], one=True)
-    if not book:
+# Get a specific username's data
+#
+@get('/users/<username>')
+def retrieve_user(username, db):
+    user = query(db, 'SELECT * FROM users WHERE username = ?', [username], one=True)
+    if not user:
         abort(404)
 
-    return {'books': [book]}
+    return {'users': [user]}
+
+# Add a follower
+# 
+@post('/users/<username>/followers/<usernameToFollow>')
+def add_follower(db):
+    user = request.json
+
+    if not user:
+        abort(400)
+
+    posted_fields = user.keys()
+    required_fields = {'username', 'email', 'password'}
+
+    if not required_fields <= posted_fields:
+        abort(400, f'Missing fields: {required_fields - posted_fields}')
+
+    try:
+        user['username'] = execute(db, '''
+            INSERT INTO users(username, email, password)
+            VALUES(:username, :email, :password)
+            ''', user)
+    except sqlite3.IntegrityError as e:
+        abort(409, str(e))
+
+    response.status = 201
+    response.set_header('Location', f"/users/{user['username']}")
+    return user
