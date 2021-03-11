@@ -1,0 +1,40 @@
+Project 2: RESTful Back-End Microservices
+Created By: Stephen Lee, 
+Course: CPSC 449 - Web Back-End Engineering
+Date: March 12, 2021
+
+Requirements:
+Python3
+Bottle
+Sqlite3
+Any web browser
+
+Description:
+We plan to build a microblogging service similar to Twitter.
+The project has two RESTful back-end microservices: users and timeines.
+Each user has a username, email address, password, and list of users that the user is following. Users can post messages.
+Each post has the author's username, text of post, and a timestamp when it was created.
+Messages are aggregated into timelines. There are three different timelines:
+   1. User timeline for posts the user has made
+   2. Home timeline for recent posts by all users that the user follows
+   3. Public timeline for all posts from all users
+Timelines are organized in reverse chronological order. They are limited to 25 per web service.
+
+User Services:
+Create a new user
+Check password of username for logging in purposes
+Add a follower
+Remove a follower
+
+Timeline Services:
+Get user timeline
+Get public timeline
+Get home timeline
+Post a new tweet
+
+Language: Python
+Framework: Bottle
+Content-Type: application/json
+Database: sqlite3
+
+Start services using foreman
