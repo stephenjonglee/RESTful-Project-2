@@ -33,3 +33,5 @@ INSERT INTO followers(username, usernameToFollow) VALUES('aromatic', 'spiralshap
 INSERT INTO followers(username, usernameToFollow) VALUES('aromatic', 'planetar');
 INSERT INTO followers(username, usernameToFollow) VALUES('batmanbegins', 'theprestige');
 INSERT INTO followers(username, usernameToFollow) VALUES('spiralshape', 'aromatic');
+
+COMMIT;

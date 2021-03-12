@@ -56,3 +56,5 @@ INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'Be afraid. Be 
 INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'Bad boys, bad boys. What you gonna do? What you gonna do when I come for you?', '20210206 08:24:54');
 INSERT INTO timelines(author, text, time) VALUES('aromatic', 'Feeling stressed? Try some aroma therapy.', '20210107 10:34:04');
 INSERT INTO timelines(author, text, time) VALUES('aromatic', 'Selling oil diffusers at a cheap price!', '20210218 01:36:34');
+
+COMMIT;

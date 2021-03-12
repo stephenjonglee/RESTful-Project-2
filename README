@@ -4,10 +4,17 @@ Course: CPSC 449 - Web Back-End Engineering
 Date: March 12, 2021
 
 Requirements:
-Python3
-Bottle
-Sqlite3
+Language: Python
+Framework: Bottle
+Content-Type: application/json
+Database: sqlite3
+Foreman
 Any web browser
+
+Instructions to start program:
+   1. Go to project directory
+   2. Type "./init.sh" in cmd to create database files
+   3. Type "foreman start" to start the servers
 
 Description:
 We plan to build a microblogging service similar to Twitter.
@@ -38,11 +45,3 @@ Get home timeline (posts made by a specific user and the users he/she following)
    - parameter: username
 Post a new tweet
    - json requires: username and tweet content
-
-Language: Python
-Framework: Bottle
-Content-Type: application/json
-Database: sqlite3
-
-Start services using foreman:
-type "foreman start" in console
