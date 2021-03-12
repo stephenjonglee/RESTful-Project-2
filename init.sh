@@ -1,4 +1,4 @@
 #!/bin/sh
 
-sqlite3 ./users/users.db < ./users/users.sql
-sqlite3 ./timelines/timelines.db < ./timelines/timelines.sql
+sqlite3 ./users.db < ./users.sql
+sqlite3 ./timelines.db < ./timelines.sql

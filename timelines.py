@@ -1,32 +1,28 @@
-# Science Fiction Novel API - Bottle Edition
-#
-# Adapted from "Creating Web APIs with Python and Flask"
-# <https://programminghistorian.org/en/lessons/creating-apis-with-python-and-flask>.
+# Timelines API
+# CPSC 449: Project 2
+# Creators: Stephen Lee
+# Date: 3/12/21
 #
 
+# imports
+#
 import sys
 import textwrap
-import logging.config
 import sqlite3
 
 import bottle
 from bottle import get, post, error, abort, request, response, HTTPResponse
 from bottle.ext import sqlite
 
-# Set up app, plugins, and logging
+# Set up app and plugins
 #
 app = bottle.default_app()
-app.config.load_config('./etc/api.ini')
+app.config.load_config('./etc/timelines.ini')
 
 plugin = sqlite.Plugin(app.config['sqlite.dbfile'])
 app.install(plugin)
 
-logging.config.fileConfig(app.config['logging.config'])
-
-
 # Return errors in JSON
-#
-# Adapted from # <https://stackoverflow.com/a/39818780>
 #
 def json_error_handler(res):
     if res.content_type == 'application/json':
@@ -44,9 +40,6 @@ app.default_error_handler = json_error_handler
 #  1. Deprecation warnings for bottle_sqlite
 #  2. Resource warnings when reloader=True
 #
-# See
-#  <https://docs.python.org/3/library/warnings.html#overriding-the-default-filter>
-#
 if not sys.warnoptions:
     import warnings
     for warning in [DeprecationWarning, ResourceWarning]:
@@ -54,9 +47,6 @@ if not sys.warnoptions:
 
 
 # Simplify DB access
-#
-# Adapted from
-# <https://flask.palletsprojects.com/en/1.1.x/patterns/sqlite3/#easy-querying>
 #
 def query(db, sql, args=(), one=False):
     cur = db.execute(sql, args)
@@ -77,74 +67,89 @@ def execute(db, sql, args=()):
 
 
 # Routes
-
+#
+# Home Page
+#
 @get('/')
 def home():
     return textwrap.dedent('''
-        <h1>Distant Reading Archive</h1>
-        <p>A prototype API for distant reading of science fiction novels.</p>\n
+        <h1>Timelines API</h1>
     ''')
 
+# Post a tweet
+#
+@post('/timeline/')
+def post_tweet(db):
+    tweet = request.json
 
-@get('/books/')
-def books(db):
-    all_books = query(db, 'SELECT * FROM books;')
-
-    return {'books': all_books}
-
-
-@get('/books')
-def search(db):
-    sql = 'SELECT * FROM books'
-
-    columns = []
-    values = []
-
-    for column in ['author', 'published', 'title']:
-        if column in request.query:
-            columns.append(column)
-            values.append(request.query[column])
-
-    if columns:
-        sql += ' WHERE '
-        sql += ' AND '.join([f'{column} = ?' for column in columns])
-
-    logging.debug(sql)
-    books = query(db, sql, values)
-
-    return {'books': books}
-
-
-@post('/books/')
-def create_book(db):
-    book = request.json
-
-    if not book:
+    if not tweet:
         abort(400)
 
-    posted_fields = book.keys()
-    required_fields = {'published', 'author', 'title', 'first_sentence'}
+    posted_fields = tweet.keys()
+    required_fields = {'author', 'text'}
 
     if not required_fields <= posted_fields:
         abort(400, f'Missing fields: {required_fields - posted_fields}')
 
     try:
-        book['id'] = execute(db, '''
-            INSERT INTO books(published, author, title, first_sentence)
-            VALUES(:published, :author, :title, :first_sentence)
-            ''', book)
+        timelines['id'] = execute(db, '''
+            INSERT INTO timelines(author, text)
+            VALUES(:author, :text)
+            ''', tweet)
     except sqlite3.IntegrityError as e:
         abort(409, str(e))
 
     response.status = 201
-    response.set_header('Location', f"/books/{book['id']}")
-    return book
+    response.set_header('Location', f"/timeline/{timelines['id']}")
+    return tweet
 
+# Get Public Timeline
+#
+@get('/timeline/public/')
+def public_timeline(db):
+    ptl = query(db, 'SELECT * FROM timelines ORDER BY time DESC LIMIT 25') 
 
-@get('/books/<id:int>')
-def retrieve_book(id, db):
-    book = query(db, 'SELECT * FROM books WHERE id = ?', [id], one=True)
-    if not book:
+    if not ptl:
+        abort(400)
+
+    return ptl
+
+# Get User Timeline
+#
+@get('/timeline/user/<username>')
+def user_timeline(db):
+    # check if username exists in users table
+    user = query(db, 'SELECT * FROM users WHERE username = ? AND password = ?', [username, password], one=True)
+    if not user:
         abort(404)
 
-    return {'books': [book]}
+    # get the user timeline
+    utl = query(db, 'SELECT * FROM timelines WHERE author = ? ORDER BY time DESC LIMIT 25', [username])
+
+    if not utl:
+        abort(400)
+
+    return utl
+
+# Get Home Timeline
+#
+@get('/timeline/home/<username>')
+def user_timeline(db):
+    # check if username exists in users table
+    user = query(db, 'SELECT * FROM users WHERE username = ? AND password = ?', [username, password], one=True)
+    if not user:
+        abort(404)
+    
+    # get followers
+    qlist = query(db, 'SELECT usernameToFollow FROM followers WHERE username = ?', [username])
+    qlist.append(username)
+
+    utl = query(db, 'SELECT * FROM timelines WHERE author IN ({seq}) ORDER BY time DESC LIMIT 25'.format(seq=','.join(['?']*len(qlist))), qlist)
+
+    if not utl:
+        abort(400)
+
+    return utl
+
+
+
