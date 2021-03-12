@@ -22,19 +22,27 @@ Timelines are organized in reverse chronological order. They are limited to 25 p
 
 User Services:
 Create a new user
+   - json requires: username, email, and password
 Check password of username for logging in purposes
+   - parameters: username and password
 Add a follower
+   - parameters: username and username to follow
 Remove a follower
+   - paramenters: username and username to unfollow
 
-Timeline Services:
-Get user timeline
-Get public timeline
-Get home timeline
+Timeline Services: *max posts that can be seen is 25 per request*
+Get user timeline (posts made by a specific user)
+   - parameter: username
+Get public timeline (posts made by everyone)
+Get home timeline (posts made by a specific user and the users he/she following)
+   - parameter: username
 Post a new tweet
+   - json requires: username and tweet content
 
 Language: Python
 Framework: Bottle
 Content-Type: application/json
 Database: sqlite3
 
-Start services using foreman
+Start services using foreman:
+type "foreman start" in console

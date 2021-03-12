@@ -17,7 +17,7 @@ from bottle.ext import sqlite
 # Set up app and plugins
 #
 app = bottle.default_app()
-app.config.load_config('./etc/users.ini')
+app.config.load_config('./users.ini')
 
 plugin = sqlite.Plugin(app.config['sqlite.dbfile'])
 app.install(plugin)

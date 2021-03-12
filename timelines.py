@@ -17,7 +17,7 @@ from bottle.ext import sqlite
 # Set up app and plugins
 #
 app = bottle.default_app()
-app.config.load_config('./etc/timelines.ini')
+app.config.load_config('./timelines.ini')
 
 plugin = sqlite.Plugin(app.config['sqlite.dbfile'])
 app.install(plugin)
