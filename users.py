@@ -11,7 +11,7 @@ import textwrap
 import sqlite3
 
 import bottle
-from bottle import get, post, error, abort, request, response, HTTPResponse
+from bottle import get, post, delete, error, abort, request, response, HTTPResponse
 from bottle.ext import sqlite
 
 # Set up app and plugins
