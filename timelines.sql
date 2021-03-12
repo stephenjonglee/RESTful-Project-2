@@ -43,18 +43,18 @@ INSERT INTO followers(username, usernameToFollow) VALUES('aromatic', 'planetar')
 INSERT INTO followers(username, usernameToFollow) VALUES('batmanbegins', 'theprestige');
 INSERT INTO followers(username, usernameToFollow) VALUES('spiralshape', 'aromatic');
 
-INSERT INTO timelines(author, text, time) VALUES('planetar', 'Science is fun!', '20210305 04:17:03');
-INSERT INTO timelines(author, text, time) VALUES('planetar', 'Is pluto a planet?', '20210212 01:12:01');
-INSERT INTO timelines(author, text, time) VALUES('theprestige', 'I am the best. The very best. That no one ever was.', '20210124 04:54:34');
-INSERT INTO timelines(author, text, time) VALUES('theprestige', 'I am a grandmaster in chess. Does anyone want to play with me?', '20210228 01:25:53');
-INSERT INTO timelines(author, text, time) VALUES('spiralshape', 'Geometry is better than science. The circle is infinite and spirals are cool.', '20210309 11:14:10');
-INSERT INTO timelines(author, text, time) VALUES('spiralshape', 'Stare into my spirals and be hypnotized.', '20210227 03:20:16');
-INSERT INTO timelines(author, text, time) VALUES('spiralshape', 'I love ice cream swirls.', '20210105 06:15:25');
-INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'I am the Dark Knight.', '20210126 01:02:38');
-INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'I know karate', '20210309 07:03:35');
-INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'Be afraid. Be very afraid.', '20210226 10:44:39');
-INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'Bad boys, bad boys. What you gonna do? What you gonna do when I come for you?', '20210206 08:24:54');
-INSERT INTO timelines(author, text, time) VALUES('aromatic', 'Feeling stressed? Try some aroma therapy.', '20210107 10:34:04');
-INSERT INTO timelines(author, text, time) VALUES('aromatic', 'Selling oil diffusers at a cheap price!', '20210218 01:36:34');
+INSERT INTO timelines(author, text, time) VALUES('planetar', 'Science is fun!', '2021-03-05 04:17:03');
+INSERT INTO timelines(author, text, time) VALUES('planetar', 'Is pluto a planet?', '2021-02-12 01:12:01');
+INSERT INTO timelines(author, text, time) VALUES('theprestige', 'I am the best. The very best. That no one ever was.', '2021-01-24 04:54:34');
+INSERT INTO timelines(author, text, time) VALUES('theprestige', 'I am a grandmaster in chess. Does anyone want to play with me?', '2021-02-28 01:25:53');
+INSERT INTO timelines(author, text, time) VALUES('spiralshape', 'Geometry is better than science. The circle is infinite and spirals are cool.', '2021-03-09 11:14:10');
+INSERT INTO timelines(author, text, time) VALUES('spiralshape', 'Stare into my spirals and be hypnotized.', '2021-02-27 03:20:16');
+INSERT INTO timelines(author, text, time) VALUES('spiralshape', 'I love ice cream swirls.', '2021-01-05 06:15:25');
+INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'I am the Dark Knight.', '2021-01-26 01:02:38');
+INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'I know karate', '2021-03-09 07:03:35');
+INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'Be afraid. Be very afraid.', '2021-02-26 10:44:39');
+INSERT INTO timelines(author, text, time) VALUES('batmanbegins', 'Bad boys, bad boys. What you gonna do? What you gonna do when I come for you?', '2021-02-06 08:24:54');
+INSERT INTO timelines(author, text, time) VALUES('aromatic', 'Feeling stressed? Try some aroma therapy.', '2021-01-07 10:34:04');
+INSERT INTO timelines(author, text, time) VALUES('aromatic', 'Selling oil diffusers at a cheap price!', '2021-02-18 01:36:34');
 
 COMMIT;

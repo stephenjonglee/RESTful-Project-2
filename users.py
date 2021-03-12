@@ -92,15 +92,13 @@ def create_user(db):
         abort(400, f'Missing fields: {required_fields - posted_fields}')
 
     try:
-        user['id'] = execute(db, '''
+        userid = execute(db, '''
             INSERT INTO users(username, email, password)
             VALUES(:username, :email, :password)
             ''', user)
     except sqlite3.IntegrityError as e:
         abort(409, str(e))
 
-    response.status = 201
-    response.set_header('Location', f"/users/{user['username']}")
     return user
 
 # Check the password of a username
@@ -126,7 +124,7 @@ def add_follower(username, usernameToFollow, db):
         abort(404)
     
     try:
-        follower['id'] = execute(db, '''
+        follower = execute(db, '''
             INSERT INTO followers(username, usernameToFollow)
             VALUES(?, ?)
             ''', [username, usernameToFollow])
@@ -150,5 +148,5 @@ def remove_follower(username, usernameToRemove, db):
             ''', [username, usernameToRemove])
 
     response.status = 201
-    response.set_header('Location', f"/users/{username}/followers/{usernameToFollow}")
+    response.set_header('Location', f"/users/{username}/followers/{usernameToRemove}")
     return {'unfollowed': f"{usernameToRemove}"}

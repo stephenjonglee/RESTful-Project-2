@@ -92,7 +92,7 @@ def post_tweet(db):
         abort(400, f'Missing fields: {required_fields - posted_fields}')
 
     try:
-        timelines['id'] = execute(db, '''
+        timelineid = execute(db, '''
             INSERT INTO timelines(author, text)
             VALUES(:author, :text)
             ''', tweet)
@@ -100,7 +100,7 @@ def post_tweet(db):
         abort(409, str(e))
 
     response.status = 201
-    response.set_header('Location', f"/timeline/{timelines['id']}")
+    response.set_header('Location', f"/timeline/{timelineid}")
     return tweet
 
 # Get Public Timeline
@@ -112,14 +112,14 @@ def public_timeline(db):
     if not ptl:
         abort(400)
 
-    return ptl
+    return {"public_timeline": ptl}
 
 # Get User Timeline
 #
 @get('/timeline/user/<username>')
-def user_timeline(db):
+def user_timeline(username, db):
     # check if username exists in users table
-    user = query(db, 'SELECT * FROM users WHERE username = ? AND password = ?', [username, password], one=True)
+    user = query(db, 'SELECT * FROM users WHERE username = ?', [username], one=True)
     if not user:
         abort(404)
 
@@ -129,27 +129,40 @@ def user_timeline(db):
     if not utl:
         abort(400)
 
-    return utl
+    return {"user_timeline": utl}
 
 # Get Home Timeline
 #
 @get('/timeline/home/<username>')
-def user_timeline(db):
+def home_timeline(username, db):
     # check if username exists in users table
-    user = query(db, 'SELECT * FROM users WHERE username = ? AND password = ?', [username, password], one=True)
+    user = query(db, 'SELECT * FROM users WHERE username = ?', [username], one=True)
     if not user:
         abort(404)
     
     # get followers
-    qlist = query(db, 'SELECT usernameToFollow FROM followers WHERE username = ?', [username])
-    qlist.append(username)
+    follow_list = query(db, 'SELECT usernameToFollow FROM followers WHERE username = ?', [username])
+    
+    # convert list to string for sqlite query
+    str_list = "("
+    for ele in follow_list:
+    	str_list += "'"
+    	str_list += ele["usernameToFollow"]
+    	str_list += "'"
+    	str_list += ", "
+    str_list += "'"
+    str_list += username
+    str_list += "')"
+    
+    # query string
+    str_query = "SELECT * FROM timelines WHERE author IN " + str_list + " ORDER BY time DESC LIMIT 25"
 
-    utl = query(db, 'SELECT * FROM timelines WHERE author IN ({seq}) ORDER BY time DESC LIMIT 25'.format(seq=','.join(['?']*len(qlist))), qlist)
+    htl = query(db, str_query)
 
-    if not utl:
+    if not htl:
         abort(400)
 
-    return utl
+    return {"home_timeline": htl}
 
 
 
