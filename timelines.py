@@ -112,7 +112,7 @@ def public_timeline(db):
     if not ptl:
         abort(400)
 
-    return ptl
+    return {'posts' : ptl}
 
 # Get User Timeline
 #
