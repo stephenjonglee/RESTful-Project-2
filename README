@@ -1,7 +1,8 @@
 Project 2: RESTful Back-End Microservices
-Created By: Stephen Lee, 
+Created By: Stephen Lee, Scott Clary, Armando Lopez
 Course: CPSC 449 - Web Back-End Engineering
 Date: March 12, 2021
+Github link: https://github.com/stephenjonglee/RESTful-Project-2
 
 Requirements:
 Language: Python
@@ -9,12 +10,17 @@ Framework: Bottle
 Content-Type: application/json
 Database: sqlite3
 Foreman
+HTTPie
 Any web browser
 
 Instructions to start program:
    1. Go to project directory
-   2. Type "./init.sh" in cmd to create database files
+   2. Delete users.db and timelines.db files if they exists
+   2. Type "./init.sh" in cmd to create new database files
    3. Type "foreman start" to start the servers
+           - You should have a notification of two different localhost servers opened: one for users and one for timelines
+   4. Open a new terminal and type in your http requests
+           - sample request codes are listed in services including working examples for our db
 
 Description:
 We plan to build a microblogging service similar to Twitter.
@@ -25,23 +31,43 @@ Messages are aggregated into timelines. There are three different timelines:
    1. User timeline for posts the user has made
    2. Home timeline for recent posts by all users that the user follows
    3. Public timeline for all posts from all users
-Timelines are organized in reverse chronological order. They are limited to 25 per web service.
+Timelines are organized in reverse chronological order (most recent is top). They are limited to 25 per web service.
 
 User Services:
 Create a new user
-   - json requires: username, email, and password
+   - http POST localhost:5000/users/ username={username} email={email} password={password}
+   - query parameters: username, email, and password
+   - working example: http POST localhost:5000/users/ username=Stephen email=gotcha@gmail.com password=Password123
 Check password of username for logging in purposes
-   - parameters: username and password
+   - http GET localhost:5000/users/{username}/check/{password}
+   - query parameters: username and password
+   - working example: http GET localhost:5000/users/batmanbegins/check/ibeatthejoker
 Add a follower
-   - parameters: username and username to follow
+   - http POST localhost:5000/users/{username}/followers/{usernameToFollow}
+   - query parameters: username and username to follow
+   - working example: http POST localhost:5000/users/planetar/followers/batmanbegins
 Remove a follower
-   - paramenters: username and username to unfollow
+   - http DELETE localhost:5000/users/{username}/followers/{usernameToRemove}
+   - query paramenters: username and username to unfollow
+   - working example: http DELETE localhost:5000/users/planetar/followers/theprestige
 
 Timeline Services: *max posts that can be seen is 25 per request*
 Get user timeline (posts made by a specific user)
-   - parameter: username
+   - http GET localhost:5100/timeline/user/{username}
+   - query parameter: username
+   - working example: http GET localhost:5100/timeline/user/batmanbegins
 Get public timeline (posts made by everyone)
+   - http GET localhost:5100/timeline/public/
 Get home timeline (posts made by a specific user and the users he/she following)
-   - parameter: username
+   - http GET localhost:5100/timeline/home/{username}
+   - query parameter: username
+   - working example: http GET localhost:5100/timeline/home/batmanbegins
 Post a new tweet
-   - json requires: username and tweet content
+   - http POST localhost:5100/timeline/ author={author} text={text}
+   - query parameters: username and tweet content
+   - working example: http POST localhost:5100/timeline/ author=batmanbegins text="I am no longer batman"
+
+File Contents:
+init.sh   __pycache__  timelines.db   timelines.py   users.db   users.py
+Procfile  README       timelines.ini  timelines.sql  users.ini  users.sql
+

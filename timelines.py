@@ -1,6 +1,6 @@
 # Timelines API
 # CPSC 449: Project 2
-# Creators: Stephen Lee
+# Creators: Stephen Lee, Scott Clary, Armando Lopez
 # Date: 3/12/21
 #
 
@@ -78,18 +78,26 @@ def home():
 
 # Post a tweet
 #
+# check author in db
 @post('/timeline/')
 def post_tweet(db):
     tweet = request.json
 
+    # check if tweet is received
     if not tweet:
-        abort(400)
+        abort(400, "Post must be a json format.")
 
+    # check for required parameters for tweets
     posted_fields = tweet.keys()
     required_fields = {'author', 'text'}
 
     if not required_fields <= posted_fields:
         abort(400, f'Missing fields: {required_fields - posted_fields}')
+    
+    # check if username exists in users table
+    user = query(db, 'SELECT * FROM users WHERE username = ?', [tweet['author']], one=True)
+    if not user:
+        abort(404, f"{author} is not a user.")
 
     try:
         timelineid = execute(db, '''
@@ -100,8 +108,8 @@ def post_tweet(db):
         abort(409, str(e))
 
     response.status = 201
-    response.set_header('Location', f"/timeline/{timelineid}")
-    return tweet
+    return {"message": "Tweet created.",
+            "tweet": tweet}
 
 # Get Public Timeline
 #
@@ -109,8 +117,9 @@ def post_tweet(db):
 def public_timeline(db):
     ptl = query(db, 'SELECT * FROM timelines ORDER BY time DESC LIMIT 25') 
 
+    # check if public timeline is not found
     if not ptl:
-        abort(400)
+        abort(404, "Public timeline is not found.")
 
     return {"public_timeline": ptl}
 
@@ -121,13 +130,14 @@ def user_timeline(username, db):
     # check if username exists in users table
     user = query(db, 'SELECT * FROM users WHERE username = ?', [username], one=True)
     if not user:
-        abort(404)
+        abort(404, f"{username} is not a user.")
 
     # get the user timeline
     utl = query(db, 'SELECT * FROM timelines WHERE author = ? ORDER BY time DESC LIMIT 25', [username])
 
+    # check if user timeline is not found
     if not utl:
-        abort(400)
+        abort(404, "User timeline is not found.")
 
     return {"user_timeline": utl}
 
@@ -138,7 +148,7 @@ def home_timeline(username, db):
     # check if username exists in users table
     user = query(db, 'SELECT * FROM users WHERE username = ?', [username], one=True)
     if not user:
-        abort(404)
+        abort(404, f"{username} is not a user.")
     
     # get followers
     follow_list = query(db, 'SELECT usernameToFollow FROM followers WHERE username = ?', [username])
@@ -159,8 +169,9 @@ def home_timeline(username, db):
 
     htl = query(db, str_query)
 
+    # check if home timeline is not found
     if not htl:
-        abort(400)
+        abort(404, "Home timeline is not found.")
 
     return {"home_timeline": htl}
 

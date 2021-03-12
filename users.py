@@ -1,6 +1,6 @@
 # Users API
 # CPSC 449: Project 2
-# Creators: Stephen Lee
+# Creators: Stephen Lee, Scott Clary, Armando Lopez
 # Date: 3/12/21
 #
 
@@ -82,15 +82,18 @@ def home():
 def create_user(db):
     user = request.json
 
+    # check if user is in json format
     if not user:
-        abort(400)
+        abort(400, "User is not readable. Must be in json format.")
 
+    # check if user has all required parameters
     posted_fields = user.keys()
     required_fields = {'username', 'email', 'password'}
 
     if not required_fields <= posted_fields:
         abort(400, f'Missing fields: {required_fields - posted_fields}')
 
+    # check if username or email is unique
     try:
         userid = execute(db, '''
             INSERT INTO users(username, email, password)
@@ -99,29 +102,40 @@ def create_user(db):
     except sqlite3.IntegrityError as e:
         abort(409, str(e))
 
-    return user
+    response.status = 201
+    return {'message': "User created",
+            'user': user}
 
 # Check the password of a username
 #
 @get('/users/<username>/check/<password>')
 def check_password(username, password, db):
-    user = query(db, 'SELECT * FROM users WHERE username = ? AND password = ?', [username, password], one=True)
+    # check if username exists
+    user = query(db, 'SELECT * FROM users WHERE username = ?', [username], one=True)
     if not user:
-        abort(404)
-
-    return {'users': user}
+        abort(404, f"{username} is not a user.")
+    
+    # get the password
+    pswd = query(db, 'SELECT password FROM users WHERE username = ?', [username], one=True)
+    
+    if pswd['password'] == password:
+    	return {'message': "Password matches."}
+    else:
+    	return {'message': "Password does not match."}
 
 # Add a follower
 # 
 @post('/users/<username>/followers/<usernameToFollow>')
 def add_follower(username, usernameToFollow, db):
-    find_userToFollow = query(db, 'SELECT * FROM followers WHERE username = ?', [usernameToFollow], one=True)
-    if not find_userToFollow:
-    	abort(404)
-    
+    # check if username exists
     user = query(db, 'SELECT * FROM users WHERE username = ?', [username], one=True)
     if not user:
-        abort(404)
+        abort(404, f"{username} is not a user.")
+    
+    # check if username to follow exists
+    find_userToFollow = query(db, 'SELECT * FROM users WHERE username = ?', [usernameToFollow], one=True)
+    if not find_userToFollow:
+    	abort(404, f"{username} is not a user.")
     
     try:
         follower = execute(db, '''
@@ -132,21 +146,32 @@ def add_follower(username, usernameToFollow, db):
         abort(409, str(e))
 
     response.status = 201
-    response.set_header('Location', f"/users/{username}/followers/{usernameToFollow}")
-    return {'following': f"{usernameToFollow}"}
+    return {'message': "Follow successful.",
+            'following': f"{usernameToFollow}"}
 
 # Remove a follower
 #
 @delete('/users/<username>/followers/<usernameToRemove>')
 def remove_follower(username, usernameToRemove, db):
+    # check if username exists
+    user = query(db, 'SELECT * FROM users WHERE username = ?', [username], one=True)
+    if not user:
+        abort(404, f"{username} is not a user.")
+    
+    # check if username to remove exists
+    find_userToRemove = query(db, 'SELECT * FROM users WHERE username = ?', [usernameToRemove], one=True)
+    if not find_userToRemove:
+    	abort(404, f"{usernameToRemove} is not a user.")
+    	
+    # check if username is following the username to remove
     find_userToRemove = query(db, 'SELECT * FROM followers WHERE username = ? AND usernameToFollow = ?', [username, usernameToRemove], one=True)
     if not find_userToRemove:
-    	abort(404)
+    	abort(404, f"{username} is not following {usernameToRemove}.")
     
+    # delete
     unfollowed = execute(db, '''
             DELETE FROM followers WHERE username = ? AND usernameToFollow = ?
             ''', [username, usernameToRemove])
 
-    response.status = 201
-    response.set_header('Location', f"/users/{username}/followers/{usernameToRemove}")
-    return {'unfollowed': f"{usernameToRemove}"}
+    return {'message': "Deletion successful.",
+            'unfollowed': f"{usernameToRemove}"}
