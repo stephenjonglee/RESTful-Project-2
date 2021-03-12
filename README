@@ -67,7 +67,7 @@ Post a new tweet
    - query parameters: username and tweet content
    - working example: http POST localhost:5100/timeline/ author=batmanbegins text="I am no longer batman"
 
-File Contents:
-init.sh   __pycache__  timelines.db   timelines.py   users.db   users.py
-Procfile  README       timelines.ini  timelines.sql  users.ini  users.sql
+File Contents (include all in your evaluation please):
+init.sh   README         timelines.py   users.ini  users.sql
+Procfile  timelines.ini  timelines.sql  users.py
 
